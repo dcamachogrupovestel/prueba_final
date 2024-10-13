@@ -1,0 +1,46 @@
+//traducir a python
+using System;
+using System.Data.SQLite;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        string connectionString = "Data Source=:memory:";
+        using (var connection = new SQLiteConnection(connectionString))
+        {
+            connection.Open();
+            using (var command = new SQLiteCommand(connection))
+            {
+                while (true)
+                {
+                    Console.Write("sqlite> ");
+                    string input = Console.ReadLine();
+                    if (string.IsNullOrEmpty(input))
+                        continue;
+                    if (input == ".quit")
+                        break;
+                    try
+                    {
+                        command.CommandText = input;
+                        using (var reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                for (int i = 0; i < reader.FieldCount; i++)
+                                {
+                                    Console.Write(reader.GetValue(i) + "\t");
+                                }
+                                Console.WriteLine();
+                            }
+                        }
+                    }
+                    catch (SQLiteException e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
+                }
+            }
+        }
+    }
+}
